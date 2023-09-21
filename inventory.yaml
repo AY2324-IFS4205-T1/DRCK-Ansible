@@ -1,0 +1,12 @@
+django:
+  hosts:
+    ifs4205-23s1-1-1-i.comp.nus.edu.sg
+postgres:
+  hosts:
+    ifs4205-23s1-1-1-i.comp.nus.edu.sg
+frontend:
+  hosts:
+    ifs4205-23s1-1-2-i.comp.nus.edu.sg
+waf: 
+  hosts:
+    ifs4205-23s1-1-3-i.comp.nus.edu.sg 
