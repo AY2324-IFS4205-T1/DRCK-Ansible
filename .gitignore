@@ -1,1 +1,2 @@
 playbooks/files/certs/*
+playbooks/files/postgres/pg15tde*
