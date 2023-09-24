@@ -1,0 +1,102 @@
+- name: Deploy PostgresSQL TDE
+  hosts: database
+  become: yes
+
+  tasks:
+    - name: Check current user
+      command: whoami
+      register: current_user
+
+    - name: Display current user
+      debug: 
+        var: current_user.stdout
+    
+    - name: Install Required Packages
+      ansible.builtin.apt:
+        name: 
+          - acl
+        state: present
+          
+    - name: Create system user
+      ansible.builtin.user:
+        name: postgres
+        shell: /usr/sbin/nologin
+        state: present # Check if user exists
+        system: yes
+        
+    - name: Put PG TDE into remote machine
+      ansible.builtin.copy:
+        src: "/home/ubuntu/setupfiles/pg15tde.tar.gz" # change on prod
+        dest: "/home/postgres/"
+        owner: postgres
+        group: postgres
+        mode: "0600"
+    
+    - name: Extract PG TDE
+      ansible.builtin.unarchive:
+        src: "/home/postgres/pg15tde.tar.gz"
+        dest: "/home/postgres/"  # Extract to /home/postgres directory
+        remote_src: yes  # Unarchive from the control machine
+        owner: postgres # set to postgres user and group
+        group: postgres      
+    
+    - name: Create Key
+      ansible.builtin.copy:
+        dest: "/home/postgres/key.sh"
+        owner: postgres
+        group: postgres
+        mode: "0500"
+        content: |
+          #!/bin/sh
+          echo "${TDE_KEY}"
+    
+    - name: Create PG database folder
+      ansible.builtin.file:
+        path: "/opt/postgresql_db/"
+        state: directory
+        owner: postgres
+        group: postgres
+        mode: "0700"
+        
+    - name: Initialize PG
+      become_user: postgres
+      args:
+        chdir: /home/postgres/pg15tde/bin
+      ansible.builtin.shell:
+        cmd: "./initdb -D /opt/postgresql_db/ -K /home/postgres/key.sh"
+        creates: /opt/postgresql_db/PG_VERSION # Check if it has been initialized before
+      environment:
+        LD_LIBRARY_PATH: /home/postgres/pg15tde/lib # let postgres know where is the libraries it needs  
+    
+    - name: Create PG Logs Directory
+      ansible.builtin.file:
+        path: "/var/log/postgresql_logs"
+        state: directory
+        owner: postgres
+        group: postgres
+        mode: "0700"
+        
+    #********************************* ADD IN SERVER CERT ****************************************#
+    
+    - name: Copy postgresql.conf into remote machine
+      ansible.builtin.copy:
+        src: "/home/ubuntu/setupfiles/postgresql.conf" # change on prod
+        dest: "/opt/postgresql_db/postgresql.conf" 
+        owner: postgres
+        group: postgres
+        mode: 0600
+        
+    - name: Ensure the locale exists
+      locale_gen:
+        name: en_US.UTF-8
+        state: present
+        
+    - name: Start PG Service
+      become_user: postgres
+      args:
+        chdir: "/home/postgres/pg15tde/bin"
+      ansible.builtin.shell:
+        cmd: "./pg_ctl -D /opt/postgresql_db/ start"
+      environment:
+        LD_LIBRARY_PATH: /home/postgres/pg15tde/lib          
+        
