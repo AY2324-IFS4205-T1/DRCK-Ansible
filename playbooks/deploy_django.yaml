@@ -1,0 +1,74 @@
+- name: Deploy Django
+  hosts: backend
+  become: yes
+
+  tasks:
+    - name: Install Required Packages
+      ansible.builtin.apt:
+        name:
+          - acl
+        state: present
+
+    - name: Add deadsnakes repository
+      ansible.builtin.apt_repository:
+        repo: ppa:deadsnakes/ppa
+
+    - name: Update package cache
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install Python 3.10 # Too much problems with trying to install 3.11
+      ansible.builtin.apt:
+        name: python3.10
+
+    - name: Install Pip3
+      ansible.builtin.shell:
+        cmd: |
+          wget -P /tmp https://bootstrap.pypa.io/get-pip.py
+          python3 /tmp/get-pip.py
+
+    - name: Create system user
+      ansible.builtin.user:
+        name: django
+        shell: /usr/sbin/nologin
+        state: present # Check if user exists
+        system: yes
+
+    - name: Clone repository to local
+      become_user: django
+      ansible.builtin.git:
+        repo: "https://{{ ansible_env.PAT }}@github.com/{{ ansible_env.REPOSITORY }}"
+        dest: /home/django/backendapplication
+        single_branch: yes
+        version: ssl-deploy
+
+    - name: Install specified python requirements
+      become_user: django
+      ansible.builtin.pip:
+        requirements: /home/django/backendapplication/requirements.txt
+
+    - name: Copy server cert into remote machine
+      ansible.builtin.copy:
+        src: "certs/backend.crt"
+        dest: "/home/django/backendapplication/backend.crt"
+        owner: django
+        group: django
+        mode: 0600
+
+    - name: Copy server key into remote machine
+      ansible.builtin.copy:
+        src: "certs/backend.key"
+        dest: "/home/django/backendapplication/backend.key"
+        owner: django
+        group: django
+        mode: 0600
+
+    # - name: Start Django backend
+    #   become_user: django
+    #   args:
+    #     chdir: "/home/django/backendapplication"
+    #   ansible.builtin.shell:
+    #     cmd: |
+    #       python3 manage.py makemigrations
+    #       python3 manage.py migrate
+    #       python3 manage.py runserver_plus --cert-file backend.crt --key-file backend.key
