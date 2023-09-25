@@ -63,12 +63,28 @@
         group: django
         mode: 0600
 
-    # - name: Start Django backend
-    #   become_user: django
-    #   args:
-    #     chdir: "/home/django/backendapplication"
-    #   ansible.builtin.shell:
-    #     cmd: |
-    #       python3 manage.py makemigrations
-    #       python3 manage.py migrate
-    #       python3 manage.py runserver_plus --cert-file backend.crt --key-file backend.key
+    - name: Copy client cert into remote machine
+      ansible.builtin.copy:
+        src: "certs/client.crt"
+        dest: "/home/django/backendapplication/client.crt"
+        owner: django
+        group: django
+        mode: 0600
+
+    - name: Copy client key into remote machine
+      ansible.builtin.copy:
+        src: "certs/client.key"
+        dest: "/home/django/backendapplication/client.key"
+        owner: django
+        group: django
+        mode: 0600
+
+    - name: Start Django backend
+      become_user: django
+      args:
+        chdir: "/home/django/backendapplication"
+      ansible.builtin.shell:
+        cmd: |
+          python3 manage.py makemigrations
+          python3 manage.py migrate
+          nohup python3 manage.py runserver_plus --cert-file backend.crt --key-file backend.key > /home/django/backendapplication/django.log 2>&1 &
