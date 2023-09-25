@@ -1,0 +1,29 @@
+- name: Cleanup NextJS
+  hosts: frontend
+  become: yes
+
+  tasks:
+    - name: Stop NextJS Service
+      ansible.builtin.shell:
+        cmd: "pkill -f 'npm run start'"
+      ignore_errors: yes
+
+    - name: Remove nextJS folder
+      ansible.builtin.file:
+        path: "/home/nextjs/frontendapplication"
+        state: absent
+
+    - name: Uninstall nodejs
+      ansible.builtin.apt:
+        name: nodejs
+        state: absent
+
+    - name: Remove NodeSource sources.list and GPG key
+      ansible.builtin.file:
+        path: "/etc/apt/sources.list.d/nodesource.list"
+        state: absent
+
+    - name: Remove NodeSource GPG key
+      ansible.builtin.file:
+        path: "/etc/apt/keyrings/nodesource.gpg"
+        state: absent
