@@ -1,4 +1,4 @@
-- name: Deploy Django
+- name: Deploy NextJS
   hosts: frontend
   become: yes
 
