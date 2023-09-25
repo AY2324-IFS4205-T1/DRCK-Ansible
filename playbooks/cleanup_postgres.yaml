@@ -1,0 +1,38 @@
+- name: Cleanup PostgresSQL TDE
+  hosts: database
+  become: yes
+
+  tasks:
+    - name: Stop PG Service
+      become_user: postgres
+      args:
+        chdir: "/home/postgres/pg15tde/bin"
+      ansible.builtin.shell:
+        cmd: "./pg_ctl -D /opt/postgresql_db/ stop"
+      environment:
+        LD_LIBRARY_PATH: /home/postgres/pg15tde/lib
+
+    - name: Remove PG log folder
+      ansible.builtin.file:
+        path: "/var/log/postgresql_logs"
+        state: absent
+
+    - name: Remove PG database folder
+      ansible.builtin.file:
+        path: "/opt/postgresql_db/"
+        state: absent
+
+    - name: Remove key
+      ansible.builtin.file:
+        path: "/home/postgres/key.sh"
+        state: absent
+
+    - name: Remove TDE folder
+      ansible.builtin.file:
+        path: "/home/postgres/pg15tde"
+        state: absent
+
+    - name: Remove TDE zip
+      ansible.builtin.file:
+        path: "/home/postgres/pg15tde.tar.gz"
+        state: absent
