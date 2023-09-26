@@ -7,6 +7,7 @@
       ansible.builtin.apt:
         name:
           - acl
+          - gunicorn3
         state: present
 
     - name: Add deadsnakes repository
@@ -79,6 +80,11 @@
         group: django
         mode: 0600
 
+    # https://docs.gunicorn.org/en/stable/settings.html
+    # --cert-reqs:
+    # 0: no client verification
+    # 1: ssl.CERT_OPTIONAL
+    # 2: ssl.CERT_REQUIRED
     - name: Start Django backend
       become_user: django
       args:
@@ -87,4 +93,4 @@
         cmd: |
           python3 manage.py makemigrations
           python3 manage.py migrate
-          nohup python3 manage.py runserver_plus --cert-file backend.crt --key-file backend.key > /home/django/backendapplication/django.log 2>&1 &
+          gunicorn3 --bind 0.0.0.0:8000 main.wsgi --workers=4 --daemon --certfile={{ ansible_env.BACKEND_CERT }} --keyfile={{ ansible_env.BACKEND_KEY }} --ca-certs={{ ansible_env.CA_CERT }} --cert-reqs=2
