@@ -153,4 +153,12 @@
           ./psql -c "GRANT django_rw to djangouser;"
       environment:
         LD_LIBRARY_PATH: /home/postgres/pg15tde/lib
-        PGPASSWORD: "{{ ansible_env.USERDB_PW }}"
+
+    - name: Set password for postgresdb user
+      become_user: postgres
+      args:
+        chdir: "/home/postgres/pg15tde/bin"
+      ansible.builtin.shell:
+        cmd: ./psql -c "ALTER USER postgres ENCRYPTED PASSWORD '{{ ansible_env.USERMIGRATEDB_PW }}'"
+      environment:
+        LD_LIBRARY_PATH: /home/postgres/pg15tde/lib
