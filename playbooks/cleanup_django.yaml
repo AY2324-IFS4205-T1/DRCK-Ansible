@@ -1,0 +1,14 @@
+- name: Cleanup Django
+  hosts: backend
+  become: yes
+
+  tasks:
+    - name: Stop Django Service
+      ansible.builtin.shell:
+        cmd: "pkill -f 'gunicorn'"
+      ignore_errors: yes
+
+    - name: Remove Django folder
+      ansible.builtin.file:
+        path: "/home/django/backendapplication"
+        state: absent
