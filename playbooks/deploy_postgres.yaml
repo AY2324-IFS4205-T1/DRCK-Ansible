@@ -114,6 +114,7 @@
       environment:
         LD_LIBRARY_PATH: /home/postgres/pg15tde/lib
 
+    # GRANT ALL for existing. ALTER DEFAULT for future.
     - name: Create database and database user
       become_user: postgres
       args:
@@ -121,17 +122,35 @@
       ansible.builtin.shell:
         cmd: |
           ./psql -c "CREATE DATABASE drck_banking;"
-          ./psql -c "CREATE USER django WITH ENCRYPTED PASSWORD '{{ ansible_env.USERDB_PW }}';"
-          ./psql -c "REVOKE CONNECT ON DATABASE drck_banking FROM PUBLIC;"
-          ./psql -c "GRANT CONNECT ON DATABASE drck_banking TO django;"
-          ./psql -c "GRANT CREATE ON DATABASE drck_banking TO django;"
-          ./psql -d drck_banking -U django -c "CREATE SCHEMA django;"
-          ./psql -d drck_banking -U django -c "CREATE SCHEMA customer;"
-          ./psql -d drck_banking -U django -c "CREATE SCHEMA staff;"
-          ./psql -d drck_banking -U django -c "GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA django TO django;"
-          ./psql -d drck_banking -U django -c "GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA customer TO django;"
-          ./psql -d drck_banking -U django -c "GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA staff TO django;"
-          ./psql -c "REVOKE CREATE ON DATABASE drck_banking FROM django;"
+          ./psql -c "REVOKE CREATE ON SCHEMA public FROM PUBLIC;"
+          ./psql -c "REVOKE ALL ON DATABASE drck_banking FROM PUBLIC;"
+          ./psql -c "CREATE USER djangomigrate WITH ENCRYPTED PASSWORD '{{ ansible_env.USERMIGRATEDB_PW }}'"
+          ./psql -c "GRANT ALL PRIVILEGES ON DATABASE drck_banking to djangomigrate;"
+          ./psql -d drck_banking -U djangomigrate -c "CREATE SCHEMA django;"
+          ./psql -d drck_banking -U djangomigrate -c "CREATE SCHEMA customer;"
+          ./psql -d drck_banking -U djangomigrate -c "CREATE SCHEMA staff;"
+          ./psql -d drck_banking -U djangomigrate -c "GRANT ALL ON SCHEMA django to djangomigrate;"
+          ./psql -d drck_banking -U djangomigrate -c "GRANT ALL ON SCHEMA customer to djangomigrate;"
+          ./psql -d drck_banking -U djangomigrate -c "GRANT ALL ON SCHEMA staff to djangomigrate;"
+          ./psql -c "CREATE USER djangouser WITH ENCRYPTED PASSWORD '{{ ansible_env.USERDB_PW }}';"
+          ./psql -c "CREATE ROLE django_rw;"
+          ./psql -c "GRANT CONNECT ON DATABASE drck_banking TO django_rw;"
+          ./psql -d drck_banking -c "GRANT USAGE ON SCHEMA django to django_rw;"
+          ./psql -d drck_banking -c "GRANT USAGE ON SCHEMA customer to django_rw;"
+          ./psql -d drck_banking -c "GRANT USAGE ON SCHEMA staff to django_rw;"
+          ./psql -d drck_banking -c "GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA django TO django_rw;"
+          ./psql -d drck_banking -c "GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA customer TO django_rw;"
+          ./psql -d drck_banking -c "GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA staff TO django_rw;"
+          ./psql -d drck_banking -c "GRANT USAGE ON ALL SEQUENCES IN SCHEMA django TO django_rw;"
+          ./psql -d drck_banking -c "GRANT USAGE ON ALL SEQUENCES IN SCHEMA customer TO django_rw;"
+          ./psql -d drck_banking -c "GRANT USAGE ON ALL SEQUENCES IN SCHEMA staff TO django_rw;"
+          ./psql -d drck_banking -c "ALTER DEFAULT PRIVILEGES FOR USER djangomigrate IN SCHEMA django GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO django_rw;"
+          ./psql -d drck_banking -c "ALTER DEFAULT PRIVILEGES FOR USER djangomigrate IN SCHEMA customer GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO django_rw;"
+          ./psql -d drck_banking -c "ALTER DEFAULT PRIVILEGES FOR USER djangomigrate IN SCHEMA staff GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO django_rw;"
+          ./psql -d drck_banking -c "ALTER DEFAULT PRIVILEGES FOR USER djangomigrate IN SCHEMA django GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO django_rw;"
+          ./psql -d drck_banking -c "ALTER DEFAULT PRIVILEGES FOR USER djangomigrate IN SCHEMA customer GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO django_rw;"
+          ./psql -d drck_banking -c "ALTER DEFAULT PRIVILEGES FOR USER djangomigrate IN SCHEMA staff GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO django_rw;"
+          ./psql -c "GRANT django_rw to djangouser;"
       environment:
         LD_LIBRARY_PATH: /home/postgres/pg15tde/lib
         PGPASSWORD: "{{ ansible_env.USERDB_PW }}"
