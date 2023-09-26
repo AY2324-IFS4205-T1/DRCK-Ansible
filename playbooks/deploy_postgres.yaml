@@ -122,15 +122,16 @@
         cmd: |
           ./psql -c "CREATE DATABASE drck_banking;"
           ./psql -c "CREATE USER django WITH ENCRYPTED PASSWORD '{{ ansible_env.USERDB_PW }}';"
-          ./psql -c "GRANT ALL PRIVILEGES ON DATABASE drck_banking to django;"
           ./psql -c "REVOKE CONNECT ON DATABASE drck_banking FROM PUBLIC;"
           ./psql -c "GRANT CONNECT ON DATABASE drck_banking TO django;"
+          ./psql -c "GRANT CREATE ON DATABASE drck_banking TO django;"
           ./psql -d drck_banking -U django -c "CREATE SCHEMA django;"
           ./psql -d drck_banking -U django -c "CREATE SCHEMA customer;"
           ./psql -d drck_banking -U django -c "CREATE SCHEMA staff;"
-          ./psql -d drck_banking -U django -c "GRANT ALL ON SCHEMA django to django;"
-          ./psql -d drck_banking -U django -c "GRANT ALL ON SCHEMA customer to django;"
-          ./psql -d drck_banking -U django -c "GRANT ALL ON SCHEMA staff to django;"
+          ./psql -d drck_banking -U django -c "GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA django TO django;"
+          ./psql -d drck_banking -U django -c "GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA customer TO django;"
+          ./psql -d drck_banking -U django -c "GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA staff TO django;"
+          ./psql -c "REVOKE CREATE ON DATABASE drck_banking FROM django;"
       environment:
         LD_LIBRARY_PATH: /home/postgres/pg15tde/lib
         PGPASSWORD: "{{ ansible_env.USERDB_PW }}"
