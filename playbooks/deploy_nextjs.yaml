@@ -36,6 +36,22 @@
         single_branch: yes
         version: deployment
 
+    - name: Copy client cert into remote machine
+      ansible.builtin.copy:
+        src: "certs/client.crt"
+        dest: "/home/nextjs/frontendapplication/client.crt"
+        owner: nextjs
+        group: nextjs
+        mode: 0600
+
+    - name: Copy client key into remote machine
+      ansible.builtin.copy:
+        src: "certs/client.key"
+        dest: "/home/nextjs/frontendapplication/client.key"
+        owner: nextjs
+        group: nextjs
+        mode: 0600
+
     - name: Start NextJS frontend
       become_user: nextjs
       args:
