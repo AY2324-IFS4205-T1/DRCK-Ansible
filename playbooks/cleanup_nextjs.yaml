@@ -5,7 +5,7 @@
   tasks:
     - name: Stop NextJS Service
       ansible.builtin.shell:
-        cmd: "pkill npm run start"
+        cmd: "pkill npm"
       ignore_errors: yes
 
     - name: Remove nextJS folder
