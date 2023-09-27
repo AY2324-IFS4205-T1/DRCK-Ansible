@@ -11,6 +11,7 @@
         cmd: "./pg_ctl -D /opt/postgresql_db/ stop"
       environment:
         LD_LIBRARY_PATH: /home/postgres/pg15tde/lib
+      ignore_errors: yes
 
     - name: Remove PG log folder
       ansible.builtin.file:

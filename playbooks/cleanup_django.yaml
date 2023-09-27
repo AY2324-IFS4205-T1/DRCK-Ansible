@@ -5,7 +5,7 @@
   tasks:
     - name: Stop Django Service
       ansible.builtin.shell:
-        cmd: "pkill -f 'gunicorn'"
+        cmd: "pkill gunicorn"
       ignore_errors: yes
 
     - name: Remove Django folder
