@@ -34,7 +34,7 @@
         repo: "https://{{ ansible_env.PAT }}@github.com/{{ ansible_env.REPOSITORY }}"
         dest: /home/nextjs/frontendapplication
         single_branch: yes
-        version: deployment
+        version: apiroute
 
     - name: Copy client cert into remote machine
       ansible.builtin.copy:
