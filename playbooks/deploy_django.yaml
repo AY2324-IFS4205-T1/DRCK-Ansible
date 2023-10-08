@@ -41,7 +41,7 @@
         repo: "https://{{ ansible_env.PAT }}@github.com/{{ ansible_env.REPOSITORY }}"
         dest: /home/django/backendapplication
         single_branch: yes
-        version: ssl-deploy
+        version: main
 
     - name: Install specified python requirements
       become_user: django
