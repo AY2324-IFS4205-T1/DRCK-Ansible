@@ -40,7 +40,7 @@
         repo: "https://{{ ansible_env.PAT }}@github.com/{{ ansible_env.REPOSITORY }}"
         dest: /home/nextjs/frontendapplication
         single_branch: yes
-        version: sessionStorage
+        version: ContentSecurityPolicy
 
     - name: Copy client cert into remote machine
       ansible.builtin.copy:
