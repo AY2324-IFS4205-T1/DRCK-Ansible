@@ -80,13 +80,13 @@
         group: django
         mode: 0600
 
-    - name: Copy test data into remote machine
-      ansible.builtin.copy:
-        src: "djangobackend/tests.json"
-        dest: "/home/django/backendapplication/tests.json"
-        owner: django
-        group: django
-        mode: 0600
+    # - name: Copy test data into remote machine
+    #   ansible.builtin.copy:
+    #     src: "djangobackend/tests.json"
+    #     dest: "/home/django/backendapplication/tests.json"
+    #     owner: django
+    #     group: django
+    #     mode: 0600
 
     # https://docs.gunicorn.org/en/stable/settings.html
     # --cert-reqs:
