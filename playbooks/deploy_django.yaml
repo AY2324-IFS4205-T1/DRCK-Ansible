@@ -101,7 +101,7 @@
         cmd: |
           python3 manage.py makemigrations
           python3 manage.py migrate
-          python3 manage.py loaddata tests.json
+          python3 manage.py loaddata data_for_demo.json
           gunicorn3 --bind 0.0.0.0:8000 main.wsgi --workers=4 --daemon --certfile={{ ansible_env.BACKEND_CERT }} --keyfile={{ ansible_env.BACKEND_KEY }} --ca-certs={{ ansible_env.CA_CERT }} --cert-reqs=2
 
 # gunicorn3 --bind 0.0.0.0:8000 main.wsgi --workers=4 --daemon
