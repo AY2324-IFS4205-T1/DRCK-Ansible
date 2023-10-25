@@ -99,9 +99,9 @@
         chdir: "/home/django/backendapplication"
       ansible.builtin.shell:
         cmd: |
-          python3 manage.py makemigrations
-          python3 manage.py migrate
-          python3 manage.py loaddata data/*.json
           gunicorn3 --bind 0.0.0.0:8000 main.wsgi --workers=4 --daemon --certfile={{ ansible_env.BACKEND_CERT }} --keyfile={{ ansible_env.BACKEND_KEY }} --ca-certs={{ ansible_env.CA_CERT }} --cert-reqs=2
 
 # gunicorn3 --bind 0.0.0.0:8000 main.wsgi --workers=4 --daemon
+# python3 manage.py makemigrations
+# python3 manage.py migrate
+# python3 manage.py loaddata data/*.json
