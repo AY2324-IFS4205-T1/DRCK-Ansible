@@ -18,7 +18,7 @@
       ansible.builtin.apt:
         update_cache: yes
 
-    - name: Install Python 3.10 # Too much problems with trying to install 3.11
+    - name: Install Python 3.10
       ansible.builtin.apt:
         name: python3.10
 
@@ -80,14 +80,6 @@
         group: django
         mode: 0600
 
-    # - name: Copy test data into remote machine
-    #   ansible.builtin.copy:
-    #     src: "djangobackend/tests.json"
-    #     dest: "/home/django/backendapplication/tests.json"
-    #     owner: django
-    #     group: django
-    #     mode: 0600
-
     # https://docs.gunicorn.org/en/stable/settings.html
     # --cert-reqs:
     # 0: no client verification
@@ -100,8 +92,3 @@
       ansible.builtin.shell:
         cmd: |
           gunicorn3 --bind 0.0.0.0:8000 main.wsgi --workers=4 --daemon --certfile={{ ansible_env.BACKEND_CERT }} --keyfile={{ ansible_env.BACKEND_KEY }} --ca-certs={{ ansible_env.CA_CERT }} --cert-reqs=2
-
-# gunicorn3 --bind 0.0.0.0:8000 main.wsgi --workers=4 --daemon
-# python3 manage.py makemigrations
-# python3 manage.py migrate
-# python3 manage.py loaddata data/*.json
