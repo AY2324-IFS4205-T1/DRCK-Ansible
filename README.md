@@ -9,8 +9,10 @@ Before using the script, the following items are required:
 - client.key (Private key use to generate the CSR for the client certificate)
 - database.crt (TLS Server certificate for database application)
 - database.key (Private key use to generate the CSR for the database server certificate)
+- pg15tde.tar.gz (Compiled version of PostgreSQL 15 TDE)
 
 After generating the certs, create a directory call `certs` in `playbooks/files` and put the TLS certificates and the private keys used to generate the certificates in that directory.
+After getting the compiled version of PostgreSQL 15 TDE, put the `pg15tde.tar.gz` file in `files/postgresql` directory
 
 Follow the steps here to generate the certs: [https://www.digitalocean.com/community/tutorials/how-to-set-up-and-configure-a-certificate-authority-ca-on-ubuntu-20-04](https://www.digitalocean.com/community/tutorials/how-to-set-up-and-configure-a-certificate-authority-ca-on-ubuntu-20-04)
 
