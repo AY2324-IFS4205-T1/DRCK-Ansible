@@ -2,10 +2,15 @@
 This repository contains the Ansible scripts used to automate the CD in our CICD pipeline.  
 It also contains files required for the script to use.  
 
-Before using the script, generating TLS certificates for the following is required:  
-- backend.crt (Server certificate for backend application)
-- client.crt (Client certificate for frontend application to communicate with backend application and for backend application to communicate with database application)
-- database.crt (Server certificate for database application)
+Before using the script, the following items are required:  
+- backend.crt (TLS Server certificate for backend application)
+- backend.key (Private key use to generate the CSR for the backend server certificate)
+- client.crt (TLS Client certificate for frontend application to communicate with backend application and for backend application to communicate with database application)
+- client.key (Private key use to generate the CSR for the client certificate)
+- database.crt (TLS Server certificate for database application)
+- database.key (Private key use to generate the CSR for the database server certificate)
+
+After generating the certs, create a directory call `certs` in `playbooks/files` and put the TLS certificates and the private keys used to generate the certificates in that directory.
 
 Follow the steps here to generate the certs: [https://www.digitalocean.com/community/tutorials/how-to-set-up-and-configure-a-certificate-authority-ca-on-ubuntu-20-04](https://www.digitalocean.com/community/tutorials/how-to-set-up-and-configure-a-certificate-authority-ca-on-ubuntu-20-04)
 
