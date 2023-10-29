@@ -91,4 +91,5 @@
         chdir: "/home/django/backendapplication"
       ansible.builtin.shell:
         cmd: |
+          python manage.py createcachetable
           gunicorn3 --bind 0.0.0.0:8000 main.wsgi --workers=4 --daemon --certfile={{ ansible_env.BACKEND_CERT }} --keyfile={{ ansible_env.BACKEND_KEY }} --ca-certs={{ ansible_env.CA_CERT }} --cert-reqs=2
